@@ -70,3 +70,11 @@ async def aplicacion_exception_handler(request: Request, exc: ErrorAplicacion):
             "code": exc.code
         }
     )
+    
+class RecursoNoEncontrado(ErrorAplicacion):
+    def __init__(self, detail: str = "Recurso no encontrado"):
+        super().__init__(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=detail,
+            code="recurso_no_encontrado"
+        )

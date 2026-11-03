@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.models.autor import Autor
 from app.schemas.autor import AutorIn, AutorOut
-from app.core.exceptions import NoEncontrado
+from app.core.exceptions import RecursoNoEncontrado
 
 router = APIRouter(prefix="/autores", tags=["Autores"])
 
