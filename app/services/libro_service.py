@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from app.models import Libro
 from app.schemas import LibroCreate, LibroUpdate
-from app.core.exceptions import ErrorAplicacion, RecursoNoEncontrado
+from app.core.exceptions import ErrorAplicacion, RecursoNoEncontrado, HTTPException
 
 class LibroService:
     @staticmethod

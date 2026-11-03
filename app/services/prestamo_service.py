@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from app.models import Prestamo, Libro, Multa
-from app.schemas import PrestamoCreate
+from app.schemas.prestamo import PrestamoCreate
+from fastapi import HTTPException
 from app.core.exceptions import ErrorAplicacion, RecursoNoEncontrado
 
 class PrestamoService:

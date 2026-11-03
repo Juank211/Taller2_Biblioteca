@@ -14,7 +14,7 @@ class PrestamoUpdate(BaseModel):
     fecha_devuelto: Optional[datetime] = None
     estado: Optional[str] = None
 
-class PrestamoResponse(PrestamoBase):
+class PrestamoOut(PrestamoBase):
     id: int
     fecha_prestamo: datetime
     fecha_devuelto: Optional[datetime] = None

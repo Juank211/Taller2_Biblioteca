@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from app.models import Usuario
 from app.schemas import UsuarioCreate, UsuarioUpdate
 from app.services.auth_service import obtener_password_hash, verificar_password
+from fastapi import HTTPException
 from app.core.exceptions import ErrorAplicacion
 
 class UsuarioService:

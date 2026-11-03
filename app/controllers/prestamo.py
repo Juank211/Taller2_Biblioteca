@@ -6,18 +6,19 @@ from app.models.prestamo import Prestamo
 from app.models.socio import Socio
 from app.models.libro import Libro
 from app.schemas.prestamo import PrestamoCreate
-from app.core.exceptions import NoEncontrado, ReglaNegocio, Conflicto
+from fastapi import HTTPException
+from app.core.exceptions import RecursoNoEncontrado, ReglaNegocio, Conflicto
 
 def crear_prestamo(db: Session, datos: PrestamoCreate):
     # R1: Socio existe
     socio = db.get(Socio, datos.socio_id)
     if not socio:
-        raise NoEncontrado("Socio no encontrado")
+        raise RecursoNoEncontrado("Socio no encontrado")
         
     # R2: Libro existe
     libro = db.get(Libro, datos.libro_id)
     if not libro:
-        raise NoEncontrado("Libro no encontrado")
+        raise RecursoNoEncontrado("Libro no encontrado")
 
     # R3: Socio está activo
     if not socio.activo:
@@ -84,7 +85,7 @@ def devolver_prestamo(db: Session, prestamo_id: int):
     # R9: Devolución
     prestamo = db.get(Prestamo, prestamo_id)
     if not prestamo:
-        raise NoEncontrado("Préstamo no encontrado")
+        raise RecursoNoEncontrado("Préstamo no encontrado")
     if prestamo.fecha_devolucion is not None:
         raise Conflicto("El préstamo ya fue devuelto")
 

@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from app.models import Multa
+from fastapi import HTTPException
 from app.core.exceptions import ErrorAplicacion, RecursoNoEncontrado
 
 class MultaService:

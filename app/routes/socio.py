@@ -4,7 +4,8 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.models.socio import Socio
 from app.schemas.socio import SocioIn, SocioOut
-from app.core.exceptions import NoEncontrado, Conflicto
+from fastapi import HTTPException
+from app.core.exceptions import RecursoNoEncontrado, Conflicto
 
 router = APIRouter(prefix="/socios", tags=["Socios"])
 
@@ -27,5 +28,5 @@ def listar_socios(db: Session = Depends(get_db)):
 def obtener_socio(socio_id: int, db: Session = Depends(get_db)):
     socio = db.get(Socio, socio_id)
     if not socio:
-        raise NoEncontrado("Socio no encontrado")
+        raise RecursoNoEncontrado("Socio no encontrado")
     return socio

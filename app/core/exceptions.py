@@ -71,6 +71,22 @@ async def aplicacion_exception_handler(request: Request, exc: ErrorAplicacion):
         }
     )
     
+class Conflicto(ErrorAplicacion):
+    def __init__(self, detail: str = "Conflicto detectado"):
+        super().__init__(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=detail,
+            code="conflicto"
+        )
+
+class ReglaNegocio(ErrorAplicacion):
+    def __init__(self, detail: str = "Regla de negocio violada"):
+        super().__init__(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=detail,
+            code="regla_negocio"
+        )
+
 class RecursoNoEncontrado(ErrorAplicacion):
     def __init__(self, detail: str = "Recurso no encontrado"):
         super().__init__(

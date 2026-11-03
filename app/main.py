@@ -17,6 +17,9 @@ from app.routes import auth, usuarios, libros, prestamos, multas, health
 # Configuración de logging
 setup_logging()
 
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Crear las tablas al iniciar la aplicación

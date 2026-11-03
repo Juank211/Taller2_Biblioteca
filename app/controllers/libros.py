@@ -1,18 +1,18 @@
-from app.core.exceptions import NoEncontrado
+from app.core.exceptions import RecursoNoEncontrado
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from app.models.autor import Autor
 from app.models.categoria import Categoria
 from app.models.libro import Libro
-from app.schemas.libro import LibroIn
+from app.schemas.libro import LibroCreate as LibroIn
 
 def crear_libro(datos: LibroIn, db: Session):
     if db.get(Autor, datos.autor_id) is None:
-        raise NoEncontrado("Autor no encontrado")
+        raise RecursoNoEncontrado("Autor no encontrado")
 
     categorias = db.scalars(select(Categoria).where(Categoria.id.in_(datos.categoria_ids))).all()
     if len(categorias) != len(datos.categoria_ids):
-        raise NoEncontrado("Una o más categorías no fueron encontradas")
+        raise RecursoNoEncontrado("Una o más categorías no fueron encontradas")
 
     datos_dict = datos.model_dump(exclude={"categoria_ids"})
     libro = Libro(**datos_dict)
@@ -34,14 +34,14 @@ def listar_libros(disponible: bool | None, db: Session):
 def actualizar_libro(libro_id: int, datos: LibroIn, db: Session):
     libro = db.get(Libro, libro_id)
     if libro is None:
-        raise NoEncontrado("Libro no encontrado")
+        raise RecursoNoEncontrado("Libro no encontrado")
 
     if db.get(Autor, datos.autor_id) is None:
-        raise NoEncontrado("Autor no encontrado")
+        raise RecursoNoEncontrado("Autor no encontrado")
 
     categorias = db.scalars(select(Categoria).where(Categoria.id.in_(datos.categoria_ids))).all()
     if len(categorias) != len(datos.categoria_ids):
-        raise NoEncontrado("Una o más categorías no fueron encontradas")
+        raise RecursoNoEncontrado("Una o más categorías no fueron encontradas")
 
     for campo, valor in datos.model_dump(exclude={"categoria_ids"}).items():
         setattr(libro, campo, valor)
@@ -54,7 +54,7 @@ def actualizar_libro(libro_id: int, datos: LibroIn, db: Session):
 def eliminar_libro(libro_id: int, db: Session):
     libro = db.get(Libro, libro_id)
     if libro is None:
-        raise NoEncontrado("Libro no encontrado")
+        raise RecursoNoEncontrado("Libro no encontrado")
 
     db.delete(libro)
     db.commit()
