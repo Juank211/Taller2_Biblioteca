@@ -1,6 +1,6 @@
 import logging
 import sys
-from logging.handlers import StreamHandler
+from logging import StreamHandler
 
 def setup_logging():
     logger = logging.getLogger()
