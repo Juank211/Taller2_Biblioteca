@@ -2,17 +2,14 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from app.models import Prestamo, Libro, Multa
 from app.schemas import PrestamoCreate
-from app.core.exceptions import ErrorAplicacion
+from app.core.exceptions import ErrorAplicacion, RecursoNoEncontrado
 
 class PrestamoService:
     @staticmethod
     def crear_prestamo(db: Session, prestamo: PrestamoCreate, usuario_id: int) -> Prestamo:
         libro = db.query(Libro).filter(Libro.id == prestamo.libro_id).first()
         if not libro:
-            raise ErrorAplicacion(
-                status_code=404,
-                detail="Libro no encontrado"
-            )
+            raise RecursoNoEncontrado("Libro no encontrado")
 
         if libro.copias_disponibles <= 0:
             raise ErrorAplicacion(
@@ -38,10 +35,7 @@ class PrestamoService:
     def devolver_prestamo(db: Session, prestamo_id: int, fecha_devuelto: datetime) -> Prestamo:
         prestamo = db.query(Prestamo).filter(Prestamo.id == prestamo_id).first()
         if not prestamo:
-            raise ErrorAplicacion(
-                status_code=404,
-                detail="Préstamo no encontrado"
-            )
+            raise RecursoNoEncontrado("Préstamo no encontrado")
 
         libro = db.query(Libro).filter(Libro.id == prestamo.libro_id).first()
         if not libro:

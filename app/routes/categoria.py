@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.models.categoria import Categoria
 from app.schemas.categoria import CategoriaIn, CategoriaOut
-from app.core.exceptions import NoEncontrado
+from app.core.exceptions import RecursoNoEncontrado
 
 router = APIRouter(prefix="/categorias", tags=["Categorías"])
 
@@ -24,5 +24,5 @@ def listar_categorias(db: Session = Depends(get_db)):
 def obtener_categoria(categoria_id: int, db: Session = Depends(get_db)):
     cat = db.get(Categoria, categoria_id)
     if not cat:
-        raise NoEncontrado("Categoría no encontrada")
+        raise RecursoNoEncontrado("Categoría no encontrada")
     return cat

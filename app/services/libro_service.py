@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from app.models import Libro
 from app.schemas import LibroCreate, LibroUpdate
-from app.core.exceptions import ErrorAplicacion
+from app.core.exceptions import ErrorAplicacion, RecursoNoEncontrado
 
 class LibroService:
     @staticmethod
@@ -29,20 +29,14 @@ class LibroService:
     def obtener_libro(db: Session, libro_id: int) -> Libro:
         libro = db.query(Libro).filter(Libro.id == libro_id).first()
         if not libro:
-            raise ErrorAplicacion(
-                status_code=404,
-                detail="Libro no encontrado"
-            )
+            raise RecursoNoEncontrado("Libro no encontrado")
         return libro
 
     @staticmethod
     def actualizar_libro(db: Session, libro_id: int, libro: LibroUpdate) -> Libro:
         db_libro = db.query(Libro).filter(Libro.id == libro_id).first()
         if not db_libro:
-            raise ErrorAplicacion(
-                status_code=404,
-                detail="Libro no encontrado"
-            )
+            raise RecursoNoEncontrado("Libro no encontrado")
 
         if libro.titulo:
             db_libro.titulo = libro.titulo
@@ -68,9 +62,6 @@ class LibroService:
     def eliminar_libro(db: Session, libro_id: int) -> None:
         libro = db.query(Libro).filter(Libro.id == libro_id).first()
         if not libro:
-            raise ErrorAplicacion(
-                status_code=404,
-                detail="Libro no encontrado"
-            )
+            raise RecursoNoEncontrado("Libro no encontrado")
         db.delete(libro)
         db.commit()

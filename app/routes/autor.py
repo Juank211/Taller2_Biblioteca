@@ -24,5 +24,5 @@ def listar_autores(db: Session = Depends(get_db)):
 def obtener_autor(autor_id: int, db: Session = Depends(get_db)):
     autor = db.get(Autor, autor_id)
     if not autor:
-        raise NoEncontrado("Autor no encontrado")
+        raise RecursoNoEncontrado("Autor no encontrado")
     return autor

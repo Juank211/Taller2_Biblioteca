@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.core.database import Base
+from .asociaciones import libro_categoria
 
 class Libro(Base):
     __tablename__ = "libros"
@@ -13,3 +14,9 @@ class Libro(Base):
     estado = Column(String, nullable=False)
 
     prestamos = relationship("Prestamo", back_populates="libro", cascade="all, delete-orphan")
+
+    categorias: Mapped[list["Categoria"]] = relationship(
+        secondary=libro_categoria,
+        back_populates="libros",
+        lazy="dynamic"
+    )
