@@ -7,20 +7,19 @@ class LibroBase(BaseModel):
     isbn: str
     copias_disponibles: int
     estado: str
-    portada_url: Optional[str] = None
-    portada_public_id: Optional[str] = None
 
 class LibroCreate(LibroBase):
     pass
 
-class LibroOut(BaseModel):
+class LibroOut(LibroBase):
     id: int
-    titulo: str
-    isbn: str
     portada_url: Optional[str] = None
     portada_public_id: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
+
+class LibroResponse(LibroOut):
+    pass
 
 class LibroUpdate(BaseModel):
     titulo: Optional[str] = None
@@ -30,8 +29,3 @@ class LibroUpdate(BaseModel):
     estado: Optional[str] = None
     portada_url: Optional[str] = None
     portada_public_id: Optional[str] = None
-
-class LibroResponse(LibroBase):
-    id: int
-
-    model_config = ConfigDict(from_attributes=True)

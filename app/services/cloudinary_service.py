@@ -1,4 +1,5 @@
 import io
+from io import BytesIO
 import cloudinary.uploader
 from cloudinary import CloudinaryImage
 

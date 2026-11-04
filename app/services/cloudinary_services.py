@@ -1,4 +1,5 @@
 import io
+from io import BytesIO
 import cloudinary.uploader
 from cloudinary import CloudinaryImage
 
@@ -17,7 +18,7 @@ def subir_portada_libro(contenido_bytes: bytes, libro_id: int) -> dict:
         invalidate=True,
         resource_type="image"
     )
-    
+
     miniatura_url = CloudinaryImage(resultado["public_id"]).build_url(
         width=200,
         height=300,
@@ -25,7 +26,7 @@ def subir_portada_libro(contenido_bytes: bytes, libro_id: int) -> dict:
         fetch_format="auto",
         quality="auto"
     )
-    
+
     return {
         "portada_url": resultado["secure_url"],
         "portada_public_id": resultado["public_id"],

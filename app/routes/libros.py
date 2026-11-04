@@ -8,7 +8,7 @@ from app.schemas import LibroCreate, LibroUpdate, LibroResponse
 from app.services.libro_service import LibroService
 from app.services.cloudinary_service import subir_portada_libro
 
-router = APIRouter(prefix="/api/v1/libros", tags=["Libros"])
+router = APIRouter(prefix="/libros", tags=["Libros"])
 
 @router.post("/{libro_id}/portada", response_model=dict)
 async def subir_portada(
