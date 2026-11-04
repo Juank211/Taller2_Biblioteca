@@ -14,7 +14,7 @@ from app.services.auth_service import (
     revocar_token
 )
 
-router = APIRouter(prefix="/api/v1/auth", tags=["Auth"])
+router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/login", response_model=TokenResponse)
 def login(

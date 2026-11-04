@@ -7,7 +7,7 @@ from app.models import Usuario
 from app.schemas import UsuarioCreate, UsuarioUpdate, UsuarioResponse
 from app.services.usuario_service import UsuarioService
 
-router = APIRouter(prefix="/api/v1/usuarios", tags=["Usuarios"])
+router = APIRouter(prefix="/usuarios", tags=["Usuarios"])
 
 @router.post("/", response_model=UsuarioResponse, status_code=status.HTTP_201_CREATED)
 def crear_usuario(

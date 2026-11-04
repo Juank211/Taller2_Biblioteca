@@ -7,7 +7,7 @@ from app.models import Usuario, Prestamo
 from app.schemas.prestamo import PrestamoCreate, PrestamoOut
 from app.services.prestamo_service import PrestamoService
 
-router = APIRouter(prefix="/api/v1/prestamos", tags=["Prestamos"])
+router = APIRouter(prefix="/prestamos", tags=["Prestamos"])
 
 @router.post("/", response_model=PrestamoOut, status_code=status.HTTP_201_CREATED)
 def solicitar_prestamo(

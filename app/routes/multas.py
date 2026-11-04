@@ -7,7 +7,7 @@ from app.models import Usuario
 from app.schemas import MultaResponse
 from app.services.multa_service import MultaService
 
-router = APIRouter(prefix="/api/v1/multas", tags=["Multas"])
+router = APIRouter(prefix="/multas", tags=["Multas"])
 
 @router.get("/", response_model=List[MultaResponse])
 def consultar_multas(
