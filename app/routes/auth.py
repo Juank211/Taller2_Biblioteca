@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from jose import JWTError, jwt
@@ -8,6 +8,7 @@ from app.core.database import get_db
 from app.core.security import get_current_user, get_current_active_admin
 from app.models import Usuario
 from app.schemas import LoginSchema, TokenResponse, TokenData, UsuarioCreate, UsuarioResponse
+from app.core.security import get_current_user, get_current_active_admin, oauth2_scheme
 from app.services.auth_service import (
     obtener_password_hash,
     verificar_password,
@@ -59,10 +60,10 @@ def login(
 
     access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
     access_token = crear_access_token(
-        data={"sub": usuario.email, "jti": str(usuario.id)}
+        data={"sub": usuario.email}
     )
     refresh_token = crear_refresh_token(
-        data={"sub": usuario.email, "jti": str(usuario.id)}
+        data={"sub": usuario.email}
     )
 
     return {
@@ -85,8 +86,7 @@ def refresh_token(
     try:
         payload = jwt.decode(refresh_token, settings.secret_key, algorithms=[settings.algorithm])
         email: str = payload.get("sub")
-        jti: str = payload.get("jti")
-        if email is None or jti is None:
+        if email is None:
             raise credentials_exception
     except JWTError:
         raise credentials_exception
@@ -106,13 +106,17 @@ def refresh_token(
         "token_type": "bearer"
     }
 
+
 @router.post("/logout")
 def logout(
+    token: str = Depends(oauth2_scheme),
     current_user: Usuario = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    # Revocar el token actual
-    revocar_token(db, current_user.id, datetime.utcnow() + timedelta(minutes=settings.access_token_expire_minutes))
+    # Revocar solo el token que se está usando
+    payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+    expiracion = datetime.fromtimestamp(payload["exp"], tz=timezone.utc)
+    revocar_token(db, payload["jti"], expiracion)
     return {"detail": "Sesión cerrada exitosamente"}
 
 @router.put("/{usuario_id}/rol", response_model=UsuarioResponse)
@@ -122,7 +126,12 @@ def actualizar_rol(
     current_user: Usuario = Depends(get_current_active_admin),
     db: Session = Depends(get_db)
 ):
-    # Verificar si el usuario existe
+    if rol not in ("admin", "usuario"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Rol no válido"
+        )
+
     usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
     if not usuario:
         raise HTTPException(
@@ -130,7 +139,6 @@ def actualizar_rol(
             detail="Usuario no encontrado"
         )
 
-    # Actualizar el rol del usuario
     usuario.rol = rol
     db.commit()
     db.refresh(usuario)

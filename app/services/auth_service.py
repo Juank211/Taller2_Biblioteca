@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.models import Usuario, TokenNegro
 from app.schemas import TokenData
 from app.core.config import settings
+import uuid
 
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
@@ -24,6 +25,7 @@ def crear_access_token(data: dict, expires_delta: Optional[timedelta] = None) ->
         expire = datetime.utcnow() + timedelta(minutes=settings.access_token_expire_minutes)
     sub = data.get("sub") or data.get("email")
     to_encode.update({"exp": expire, "sub": sub})
+    to_encode["jti"] = str(uuid.uuid4())
     encoded_jwt = jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
     return encoded_jwt
 
@@ -32,6 +34,7 @@ def crear_refresh_token(data: dict) -> str:
     expire = datetime.utcnow() + timedelta(days=settings.refresh_token_expire_days)
     sub = data.get("sub") or data.get("email")
     to_encode.update({"exp": expire, "sub": sub})
+    to_encode["jti"] = str(uuid.uuid4())
     encoded_jwt = jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
     return encoded_jwt
 
