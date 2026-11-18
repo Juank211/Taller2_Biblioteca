@@ -1,20 +1,48 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
+from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.core.database import get_db
-from app.core.security import get_current_user
+from app.core.security import get_current_user, get_current_active_admin
 from app.models import Usuario
-from app.schemas import LoginSchema, TokenResponse, TokenData
+from app.schemas import LoginSchema, TokenResponse, TokenData, UsuarioCreate, UsuarioResponse
 from app.services.auth_service import (
+    obtener_password_hash,
     verificar_password,
     crear_access_token,
     crear_refresh_token,
-    revocar_token
+    revocar_token,
 )
-
 router = APIRouter(prefix="/auth", tags=["Auth"])
+
+@router.post("/register", response_model=UsuarioResponse, status_code=status.HTTP_201_CREATED)
+def register(
+    usuario: UsuarioCreate,
+    db: Session = Depends(get_db)
+):
+    # Verificar si el usuario ya existe
+    if db.query(Usuario).filter(Usuario.email == usuario.email).first():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El email ya está registrado"
+        )
+
+    # Solo el primer usuario registrado es admin; los demás siempre son "usuario"
+    rol = "admin" if db.query(Usuario).count() == 0 else "usuario"
+
+    db_usuario = Usuario(
+        nombre=usuario.nombre,
+        email=usuario.email,
+        password_hash=obtener_password_hash(usuario.password),
+        rol=rol,
+        activo=True
+    )
+    db.add(db_usuario)
+    db.commit()
+    db.refresh(db_usuario)
+    return db_usuario
 
 @router.post("/login", response_model=TokenResponse)
 def login(
@@ -86,3 +114,24 @@ def logout(
     # Revocar el token actual
     revocar_token(db, current_user.id, datetime.utcnow() + timedelta(minutes=settings.access_token_expire_minutes))
     return {"detail": "Sesión cerrada exitosamente"}
+
+@router.put("/{usuario_id}/rol", response_model=UsuarioResponse)
+def actualizar_rol(
+    usuario_id: int,
+    rol: str,
+    current_user: Usuario = Depends(get_current_active_admin),
+    db: Session = Depends(get_db)
+):
+    # Verificar si el usuario existe
+    usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
+    if not usuario:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Usuario no encontrado"
+        )
+
+    # Actualizar el rol del usuario
+    usuario.rol = rol
+    db.commit()
+    db.refresh(usuario)
+    return usuario

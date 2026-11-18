@@ -13,4 +13,3 @@ class Socio(Base):
     activo: Mapped[bool] = mapped_column(default=True, nullable=False)
     fecha_alta: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), nullable=False)
 
-    prestamos: Mapped[list["Prestamo"]] = relationship(back_populates="socio")

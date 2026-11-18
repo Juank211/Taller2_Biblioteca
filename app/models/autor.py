@@ -10,4 +10,3 @@ class Autor(Base):
     nacionalidad: Mapped[str] = mapped_column(String(100), nullable=False)
     anio_nacimiento: Mapped[int] = mapped_column(nullable=False)
 
-    libros: Mapped[list["Libro"]] = relationship(back_populates="autor")
