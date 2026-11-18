@@ -1,8 +1,11 @@
-def test_listar_libros_publico(client):
-    response = client.get("/api/v1/libros")
+def test_listar_libros(client, token_usuario_estandar):
+    response = client.get(
+        "/api/v1/libros",
+        headers={"Authorization": f"Bearer {token_usuario_estandar}"},
+    )
     assert response.status_code == 200
     assert isinstance(response.json(), list)
-
+    
 def test_crear_libro_admin(client, token_usuario_admin):
     response = client.post(
         "/api/v1/libros",
@@ -58,8 +61,8 @@ def test_actualizar_libro_admin(client, token_usuario_admin, db_session):
     assert response.status_code == 200
     assert response.json()["titulo"] == "Libro Actualizado"
 
-def test_actualizar_libro_usuario_estandar(client, token_usuario_estandar, db_session):
-    # Crear un libro primero
+def test_actualizar_libro_usuario_estandar(client, token_usuario_estandar, token_usuario_admin, db_session):
+    # El admin crea el libro
     libro = {
         "titulo": "Libro Original",
         "autor": "Autor Original",
@@ -75,7 +78,7 @@ def test_actualizar_libro_usuario_estandar(client, token_usuario_estandar, db_se
     assert response.status_code == 201
     libro_id = response.json()["id"]
 
-    # Intentar actualizar el libro como usuario estándar
+    # El usuario estándar intenta actualizarlo y debe ser rechazado
     response = client.put(
         f"/api/v1/libros/{libro_id}",
         headers={"Authorization": f"Bearer {token_usuario_estandar}"},

@@ -18,16 +18,22 @@ engine = create_engine(
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Sobrescribir la dependencia get_db
-app.dependency_overrides[get_db] = lambda: TestingSessionLocal()
+def override_get_db():
+    db = TestingSessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+app.dependency_overrides[get_db] = override_get_db
 
 # Crear las tablas antes de ejecutar las pruebas
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(autouse=True)
 def setup_database():
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)
-
+    
 # Fixture para el cliente de pruebas
 @pytest.fixture
 def client():
@@ -84,16 +90,13 @@ def token_usuario_admin(client, usuario_admin):
     return response.json()["access_token"]
 
 # Fixture para la sesión de base de datos
+# Fixture para la sesión de base de datos
 @pytest.fixture
 def db_session():
-    connection = engine.connect()
-    transaction = connection.begin()
-    session = TestingSessionLocal(bind=connection)
+    session = TestingSessionLocal()
     yield session
     session.close()
-    transaction.rollback()
-    connection.close()
-
+    
 # Fixture para crear un libro
 @pytest.fixture
 def libro(db_session):
