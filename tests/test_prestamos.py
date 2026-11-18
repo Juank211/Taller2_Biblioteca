@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-def test_solicitar_prestamo(client, token_usuario_estandar, db_session):
+def test_solicitar_prestamo(client, token_usuario_estandar, token_usuario_admin, usuario_estandar, db_session):
     # Crear un libro con copias disponibles
     response = client.post(
         "/api/v1/libros",
@@ -20,13 +20,13 @@ def test_solicitar_prestamo(client, token_usuario_estandar, db_session):
     response = client.post(
         "/api/v1/prestamos",
         headers={"Authorization": f"Bearer {token_usuario_estandar}"},
-        json={"libro_id": libro_id, "estado": "Prestado"}
+        json={"usuario_id": usuario_estandar.id, "libro_id": libro_id, "estado": "Prestado"}
     )
     assert response.status_code == 201
     assert response.json()["libro_id"] == libro_id
     assert response.json()["estado"] == "Prestado"
 
-def test_solicitar_prestamo_sin_copias(client, token_usuario_estandar, db_session):
+def test_solicitar_prestamo_sin_copias(client, token_usuario_estandar, token_usuario_admin, usuario_estandar, db_session):
     # Crear un libro sin copias disponibles
     response = client.post(
         "/api/v1/libros",
@@ -46,12 +46,12 @@ def test_solicitar_prestamo_sin_copias(client, token_usuario_estandar, db_sessio
     response = client.post(
         "/api/v1/prestamos",
         headers={"Authorization": f"Bearer {token_usuario_estandar}"},
-        json={"libro_id": libro_id, "estado": "Prestado"}
+        json={"usuario_id": usuario_estandar.id, "libro_id": libro_id, "estado": "Prestado"}
     )
     assert response.status_code == 400
-    assert "No hay copias disponibles" in response.json()["detail"]
+    assert "No hay copias disponibles" in response.json()["message"]
 
-def test_devolver_prestamo(client, token_usuario_estandar, db_session):
+def test_devolver_prestamo(client, token_usuario_estandar, token_usuario_admin, usuario_estandar, db_session):
     # Crear un libro y un préstamo
     response = client.post(
         "/api/v1/libros",
@@ -71,7 +71,7 @@ def test_devolver_prestamo(client, token_usuario_estandar, db_session):
     response = client.post(
         "/api/v1/prestamos",
         headers={"Authorization": f"Bearer {token_usuario_estandar}"},
-        json={"libro_id": libro_id, "estado": "Prestado"}
+        json={"usuario_id": usuario_estandar.id, "libro_id": libro_id, "estado": "Prestado"}
     )
     assert response.status_code == 201
     prestamo_id = response.json()["id"]
