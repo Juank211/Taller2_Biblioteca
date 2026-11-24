@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 # revision identifiers
 revision = '32e6bcd4aea4'
-down_revision = '0005_crear_tabla_lista_negra_tokens'
+down_revision = '0005'
 branch_labels = None
 depends_on = None
 

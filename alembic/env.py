@@ -1,14 +1,18 @@
 import sys
 import os
 from logging.config import fileConfig
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
 from alembic import context
 
 # Add the project root directory to the system path
 sys.path.append(os.getcwd())
 
-from app.core.database import Base
+# Usa el MISMO engine que la app (lee DATABASE_URL del .env o del entorno),
+# en lugar de la URL fija de alembic.ini. Asi Alembic y la API siempre
+# apuntan a la misma base de datos.
+from app.core.database import Base, engine
+import app.models  # noqa: F401  (registra los modelos en Base.metadata)
+from app.models import autor, socio  # noqa: F401
+
 target_metadata = Base.metadata
 
 config = context.config
@@ -23,12 +27,7 @@ def run_migrations_offline():
         context.run_migrations()
 
 def run_migrations_online():
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section),
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
-    )
-    with connectable.connect() as connection:
+    with engine.connect() as connection:
         context.configure(
             connection=connection, target_metadata=target_metadata
         )
