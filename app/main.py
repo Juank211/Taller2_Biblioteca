@@ -12,7 +12,7 @@ from app.core.exceptions import (
 )
 from app.core.config import settings
 from app.core.logging_config import setup_logging
-from app.routes import auth, usuarios, libros, prestamos, multas, health
+from app.routes import auth, usuarios, libros, prestamos, multas, health, dashboard
 
 # Configuración de logging
 setup_logging()
@@ -53,4 +53,5 @@ app.include_router(usuarios.router, prefix="/api/v1")
 app.include_router(libros.router, prefix="/api/v1")
 app.include_router(prestamos.router, prefix="/api/v1")
 app.include_router(multas.router, prefix="/api/v1")
+app.include_router(dashboard.router, prefix="/api/v1")
 app.include_router(health.router, prefix="/api/v1")

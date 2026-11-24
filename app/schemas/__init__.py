@@ -11,6 +11,7 @@ from app.schemas.prestamo import (
     PrestamoUpdate,
     PrestamoOut,
     PrestamoOut as PrestamoResponse,
+    PrestamoDetalleOut,
 )
 from app.schemas.multa import MultaCreate, MultaUpdate, MultaResponse
 from app.schemas.auth import LoginSchema, TokenResponse, TokenData

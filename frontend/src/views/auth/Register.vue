@@ -102,7 +102,7 @@ export default {
           nombre: nombre.value,
           email: email.value,
           password: password.value,
-          rol: 'admin'
+          rol: 'usuario'
         })
 
         mensajeExito.value = '¡Cuenta creada con éxito! Redirigiendo al login...'

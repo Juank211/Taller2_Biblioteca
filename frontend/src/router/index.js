@@ -1,13 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Login from '@/views/auth/Login.vue'
 import Register from '@/views/auth/Register.vue'
+import Dashboard from '@/views/dashboard/Dashboard.vue'
 import ListadoLibros from '@/views/libros/ListadoLibros.vue'
 import CrearLibro from '@/views/libros/CrearLibro.vue'
+import GestionPrestamos from '@/views/prestamos/GestionPrestamos.vue'
+import MisPrestamos from '@/views/prestamos/MisPrestamos.vue'
 import CrearPrestamo from '@/views/prestamos/CrearPrestamo.vue'
 import DevolverPrestamo from '@/views/prestamos/DevolverPrestamo.vue'
-import ListadoSocios from '@/views/socios/ListadoSocios.vue'
-import DetalleSocio from '@/views/socios/DetalleSocio.vue'
-import CrearSocio from '@/views/socios/CrearSocio.vue'
 import ListadoUsuarios from '@/views/usuarios/ListadoUsuarios.vue'
 import CrearUsuario from '@/views/usuarios/CrearUsuario.vue'
 import PerfilUsuario from '@/views/usuarios/PerfilUsuario.vue'
@@ -16,7 +16,7 @@ import EliminarUsuario from '@/views/usuarios/EliminarUsuario.vue'
 const routes = [
   {
     path: '/',
-    redirect: '/libros'
+    redirect: '/dashboard'
   },
   {
     path: '/login',
@@ -29,6 +29,11 @@ const routes = [
     component: Register
   },
   {
+    path: '/dashboard',
+    name: 'dashboard',
+    component: Dashboard
+  },
+  {
     path: '/libros',
     name: 'listadoLibros',
     component: ListadoLibros
@@ -36,12 +41,20 @@ const routes = [
   {
     path: '/libros/crear',
     name: 'crearLibro',
-    component: CrearLibro
+    component: CrearLibro,
+    meta: { requiresAdmin: true }
+  },
+  {
+    path: '/prestamos',
+    name: 'gestionPrestamos',
+    component: GestionPrestamos,
+    meta: { requiresAdmin: true }
   },
   {
     path: '/prestamos/crear',
     name: 'crearPrestamo',
-    component: CrearPrestamo
+    component: CrearPrestamo,
+    meta: { requiresAdmin: true }
   },
   {
     path: '/prestamos/devolver/:prestamoId',
@@ -49,29 +62,21 @@ const routes = [
     component: DevolverPrestamo
   },
   {
-    path: '/socios',
-    name: 'listadoSocios',
-    component: ListadoSocios
-  },
-  {
-    path: '/socios/:socioId',
-    name: 'detalleSocio',
-    component: DetalleSocio
-  },
-  {
-    path: '/socios/crear',
-    name: 'crearSocio',
-    component: CrearSocio
+    path: '/mis-prestamos',
+    name: 'misPrestamos',
+    component: MisPrestamos
   },
   {
     path: '/usuarios',
     name: 'listadoUsuarios',
-    component: ListadoUsuarios
+    component: ListadoUsuarios,
+    meta: { requiresAdmin: true }
   },
   {
     path: '/usuarios/crear',
     name: 'crearUsuario',
-    component: CrearUsuario
+    component: CrearUsuario,
+    meta: { requiresAdmin: true }
   },
   {
     path: '/usuarios/me',
@@ -81,7 +86,8 @@ const routes = [
   {
     path: '/usuarios/eliminar/:usuarioId',
     name: 'eliminarUsuario',
-    component: EliminarUsuario
+    component: EliminarUsuario,
+    meta: { requiresAdmin: true }
   }
 ]
 
@@ -90,9 +96,10 @@ const router = createRouter({
   routes
 })
 
-// Guardia de navegación para proteger rutas
+// Guardia de navegación para proteger rutas y verificar RBAC
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('access_token')
+  const userRole = localStorage.getItem('user_role') || 'usuario'
   const rutasPublicas = ['/login', '/registro']
   const requiereAutenticacion = !rutasPublicas.includes(to.path)
 
@@ -101,10 +108,16 @@ router.beforeEach((to, from, next) => {
   }
 
   if (token && rutasPublicas.includes(to.path)) {
-    return next('/libros')
+    return next('/dashboard')
+  }
+
+  // Verificación de RBAC para rutas exclusivas de Administrador
+  if (to.meta.requiresAdmin && userRole !== 'admin') {
+    alert('Acceso restringido: Esta función requiere privilegios de Administrador.')
+    return next('/dashboard')
   }
 
   next()
 })
 
-export default router;
+export default router

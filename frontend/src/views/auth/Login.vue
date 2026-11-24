@@ -74,14 +74,16 @@ export default {
           }
         })
 
-        const { access_token, refresh_token } = response.data
+        const { access_token, refresh_token, rol, email: userEmail, nombre } = response.data
         localStorage.setItem('access_token', access_token)
         if (refresh_token) {
           localStorage.setItem('refresh_token', refresh_token)
         }
-        localStorage.setItem('user_email', email.value)
+        localStorage.setItem('user_email', userEmail || email.value)
+        localStorage.setItem('user_role', rol || 'usuario')
+        localStorage.setItem('user_name', nombre || '')
 
-        router.push('/usuarios')
+        router.push('/dashboard')
       } catch (err) {
         error.value = err.response?.data?.detail || 'Error al autenticar. Verifica tus credenciales.'
       } finally {

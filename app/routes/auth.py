@@ -60,7 +60,12 @@ def login(
 
     access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
     access_token = crear_access_token(
-        data={"sub": usuario.email}
+        data={
+            "sub": usuario.email,
+            "rol": usuario.rol,
+            "nombre": usuario.nombre,
+            "id": usuario.id
+        }
     )
     refresh_token = crear_refresh_token(
         data={"sub": usuario.email}
@@ -69,7 +74,10 @@ def login(
     return {
         "access_token": access_token,
         "refresh_token": refresh_token,
-        "token_type": "bearer"
+        "token_type": "bearer",
+        "rol": usuario.rol,
+        "email": usuario.email,
+        "nombre": usuario.nombre
     }
 
 @router.post("/refresh", response_model=TokenResponse)

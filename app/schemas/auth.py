@@ -9,6 +9,9 @@ class TokenResponse(BaseModel):
     access_token: str
     refresh_token: str
     token_type: str = "bearer"
+    rol: Optional[str] = "usuario"
+    email: Optional[str] = None
+    nombre: Optional[str] = None
 
 class TokenData(BaseModel):
     email: Optional[str] = None
